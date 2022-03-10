@@ -34,30 +34,31 @@ impl<'ctx> CodeGen<'ctx> {
         let print_type = self.context.i32_type();
 
         return self.module.add_function(
-            "puts",
-            print_type.fn_type(&[string_type.into()], false),
+            "printf",
+            print_type.fn_type(&[string_type.into()], true),
             Some(Linkage::External),
         );
     }
 
     fn get_print_fn(&self) -> FunctionValue {
         self.module
-            .get_function("puts")
+            .get_function("printf")
             .ok_or("Must define print before getting print function!")
             .unwrap()
     }
 
-    fn print(&self, text: &str) {
+    fn print(&self, text: &str, values: &[BasicMetadataValueEnum]) {
         let print = self
             .module
-            .get_function("puts")
+            .get_function("printf")
             .ok_or("Must define print before printing to console!")
             .unwrap();
 
         let message = self.builder.build_global_string_ptr(text, "msg");
 
+        let format = &[message.as_pointer_value().into()];
         self.builder
-            .build_call(print, &[message.as_pointer_value().into()], "string");
+            .build_call(print, &[format, values].concat(), "string");
     }
 
     fn test_program(&self) -> Option<JitFunction<GreaterThan>> {
@@ -67,14 +68,14 @@ impl<'ctx> CodeGen<'ctx> {
         let bool = self.context.bool_type();
 
         let fn_type = bool.fn_type(&[i64.into(), i64.into()], false);
-        let function = self.module.add_function("main", fn_type, None);
+        let condition = self.module.add_function("condition", fn_type, None);
 
-        let num_a = function.get_nth_param(0)?.into_int_value();
-        let num_b = function.get_nth_param(1)?.into_int_value();
+        let num_a = condition.get_nth_param(0)?.into_int_value();
+        let num_b = condition.get_nth_param(1)?.into_int_value();
 
-        let entry = self.context.append_basic_block(function, "entry");
-        let then_block = self.context.append_basic_block(function, "then");
-        let else_block = self.context.append_basic_block(function, "else");
+        let entry = self.context.append_basic_block(condition, "entry");
+        let then_block = self.context.append_basic_block(condition, "then");
+        let else_block = self.context.append_basic_block(condition, "else");
 
         self.builder.position_at_end(entry);
 
@@ -91,23 +92,23 @@ impl<'ctx> CodeGen<'ctx> {
         let string_type = self.context.i8_type().ptr_type(AddressSpace::Generic);
         let print_fn = self.get_print_fn();
 
-        let as_str = i64.const_int(0, false).print_to_string();
-        string_type.const_array(as_str.to_bytes());
+        let print_type = self.context.i32_type();
+        let sprintf = self.module.add_function(
+            "printf",
+            print_type.fn_type(&[string_type.into()], true),
+            Some(Linkage::External),
+        );
 
-        self.builder.build_call(print_fn, &[loaded_val.as_basic_value_enum().into()], "print_added_value");
+        self.print("%i\n", &[i64.const_int(0, false).into()]);
+
+        //self.builder.build_call(print_fn, &[loaded_val.as_basic_value_enum().into()], "print_added_value");
         //self.print(add.as_basic_value_enum().into_int_value().print_to_string().to_str().unwrap());
 
         let comp = self
             .builder
             .build_int_compare(IntPredicate::EQ, num_a, num_b, "compare");
 
-        let val = format!(
-            "Values: {}, {}",
-            num_a.print_to_string().to_string(),
-            num_b.print_to_string().to_string()
-        );
-        let message = val.as_str();
-        self.print(message);
+        self.print("Arguments {a: %i, b: %i}\n", &[num_a.into(), num_b.into()]);
 
         self.builder
             .build_conditional_branch(comp, then_block, else_block);
@@ -119,6 +120,20 @@ impl<'ctx> CodeGen<'ctx> {
         self.builder.position_at_end(else_block);
         let false_val = bool.const_int(0, false);
         self.builder.build_return(Some(&false_val));
+
+        
+        let fn_type = i64.fn_type(&[], false);
+        let function = self.module.add_function("main", fn_type, None);
+
+        let main = self.context.append_basic_block(function, "entry");
+        self.builder.position_at_end(main);
+
+        let param_a = i64.const_int(25, false);
+        let param_b = i64.const_int(28, false);
+
+        let result = self.builder.build_call(condition, &[param_a.into(), param_b.into()], "call");
+        self.print("Is \"%i\" equal to \"%i\" ? Answer: %i (0: true, 1: false)\n", &[param_a.into(), param_b.into()]);
+        self.builder.build_return(Some(&i64.const_int(0, false)));
 
         unsafe { self.execution_engine.get_function("main").ok() }
     }
