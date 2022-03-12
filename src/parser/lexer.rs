@@ -15,6 +15,7 @@ pub enum Token {
     Let,
     Mut,
     Int,
+    EOF,
     Skipped,
 }
 
@@ -46,10 +47,10 @@ pub fn from_str_vec(vec: Vec<(&str, Token)>) -> Vec<TokenType> {
 
 #[derive(Clone)]
 pub struct TokenMatch {
-    token_type: Token,
-    value: String,
-    line: i32,
-    column: i32,
+    pub token_type: Token,
+    pub value: String,
+    pub line: i32,
+    pub column: i32,
 }
 
 impl Display for TokenMatch {
