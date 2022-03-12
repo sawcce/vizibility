@@ -24,14 +24,3 @@ fn main() {
     let joined: Vec<String> = result.iter().map(|s| format!("{}", s)).collect();
     println!("{}", joined.join(" "));
 }
-
-
-
-pub enum IntType {
-    I1(bool),
-    I8(i8),
-    I16(i16),
-    I32(i32),
-    I64(i64),
-    I128(i128),
-}
