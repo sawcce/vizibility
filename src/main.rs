@@ -10,7 +10,7 @@ fn main() {
         (r"\bfn\b", Token::Fn),
         (r"\bdo\b", Token::Do),
         (r"\bend\b", Token::Int),
-        (r"\blet\", Token::Let),
+        (r"\blet\b", Token::Let),
         (r"\bmut\b", Token::Mut),
         (r"\(", Token::LParen),
         (r"\)", Token::RParen),
