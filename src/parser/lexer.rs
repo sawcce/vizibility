@@ -46,7 +46,7 @@ pub fn from_str_vec(vec: Vec<(&str, Token)>) -> Vec<TokenType> {
 
 #[derive(Clone)]
 pub struct TokenMatch {
-    tokenType: Token,
+    token_type: Token,
     value: String,
     line: i32,
     column: i32,
@@ -58,7 +58,7 @@ impl Display for TokenMatch {
         write!(
             f,
             "(\"{}\", {} at {}:{})",
-            self.value, self.tokenType, self.line, self.column
+            self.value, self.token_type, self.line, self.column
         )
     }
 }
@@ -71,9 +71,9 @@ pub fn tokenize(tokens: Vec<TokenType>, text: &str) -> Vec<TokenMatch> {
 
     while current_text.len() > 0 {
         at_least_one = false;
-        'inner: for tokenType in tokens.iter() {
-            let token_variant = tokenType.0;
-            let regex_expr = &tokenType.1;
+        'iter: for token_type in tokens.iter() {
+            let token_variant = token_type.0;
+            let regex_expr = &token_type.1;
 
             let owned = &current_text.to_owned();
             let token_match = regex_expr.find(owned);
@@ -85,20 +85,20 @@ pub fn tokenize(tokens: Vec<TokenType>, text: &str) -> Vec<TokenMatch> {
                     current_text = current_text[value.len()..].to_string();
 
                     if let Token::Skipped = token_variant{
-                        break 'inner;
+                        break 'iter;
                     }
 
                     matched_tokens.push(TokenMatch {
                         line: 00,
                         column: 0,
                         value: value.to_string(),
-                        tokenType: token_variant,
+                        token_type: token_variant,
                     });
 
-                    break 'inner;
+                    break 'iter;
                 }
                 None => {
-                    continue 'inner;
+                    continue 'iter;
                 }
             }
         }
