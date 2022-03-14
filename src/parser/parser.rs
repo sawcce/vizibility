@@ -6,8 +6,16 @@ pub struct VizibilityParser {
 }
 
 impl VizibilityParser {
-    fn program(self) {
-        self.look_ahead(0);
+    pub fn new(tokens: Vec<TokenMatch>) -> VizibilityParser {
+        VizibilityParser {
+            current_index: 0,
+            tokens,
+        }
+    }
+
+    pub fn program(self) {
+        let first = self.look_ahead(0);
+        println!("{}", first.unwrap());
     }
 }
 
@@ -26,8 +34,13 @@ impl Parser for VizibilityParser {
             }),
         }
     }
+
+    fn consume(&mut self) {
+
+    }
 }
 
 trait Parser {
     fn look_ahead(&self, skip_amount: usize) -> Result<TokenMatch, &'static str>;
+    fn consume(&mut self);
 }

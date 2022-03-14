@@ -5,6 +5,10 @@ use parser::lexer::{
     Token,
 };
 
+use parser::parser::{
+    VizibilityParser
+};
+
 fn main() {
     let tokens = from_str_vec(vec![
         (r"\bfn\b", Token::Fn),
@@ -23,4 +27,7 @@ fn main() {
 
     let joined: Vec<String> = result.iter().map(|s| format!("{}", s)).collect();
     println!("{}", joined.join(" "));
+
+    let parser = VizibilityParser::new(result);
+    parser.program();
 }

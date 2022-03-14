@@ -54,7 +54,7 @@ pub struct TokenMatch {
 }
 
 impl Display for TokenMatch {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         //write!(f, "ee")
         write!(
             f,
