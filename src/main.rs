@@ -29,5 +29,9 @@ fn main() {
     println!("{}", joined.join(" "));
 
     let parser = VizibilityParser::new(result);
-    parser.program();
+    let result = parser.program();
+    match result {
+        Ok(val) => println!("{:?}", val),
+        Err(err) => println!("{}", err)
+    }
 }
