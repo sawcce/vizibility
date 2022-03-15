@@ -9,6 +9,7 @@ pub enum Token {
     Do,
     End,
     Identifier,
+    String,
     LParen,
     RParen,
     Equals,
@@ -101,7 +102,7 @@ pub fn tokenize(tokens: Vec<TokenType>, text: &str) -> Vec<TokenMatch> {
                         length: value_length,
                         start: current_char,
                     });
-                    
+
                     current_char += value_length;
 
                     break 'iter;
