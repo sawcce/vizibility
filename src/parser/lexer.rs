@@ -51,6 +51,8 @@ pub struct TokenMatch {
     pub value: String,
     pub line: i32,
     pub column: i32,
+    pub start: usize,
+    pub length: usize,
 }
 
 impl Display for TokenMatch {
@@ -67,6 +69,7 @@ impl Display for TokenMatch {
 pub fn tokenize(tokens: Vec<TokenType>, text: &str) -> Vec<TokenMatch> {
     let mut current_text = text.to_string();
     let mut matched_tokens: Vec<TokenMatch> = Vec::new();
+    let mut current_char = 0usize;
 
     let mut at_least_one = false;
 
@@ -83,7 +86,8 @@ pub fn tokenize(tokens: Vec<TokenType>, text: &str) -> Vec<TokenMatch> {
                 Some(matched) => {
                     at_least_one = true;
                     let value = matched.as_str();
-                    current_text = current_text[value.len()..].to_string();
+                    let value_length = value.len();
+                    current_text = current_text[value_length..].to_string();
 
                     if let Token::Skipped = token_variant{
                         break 'iter;
@@ -94,7 +98,11 @@ pub fn tokenize(tokens: Vec<TokenType>, text: &str) -> Vec<TokenMatch> {
                         column: 0,
                         value: value.to_string(),
                         token_type: token_variant,
+                        length: value_length,
+                        start: current_char,
                     });
+                    
+                    current_char += value_length;
 
                     break 'iter;
                 }

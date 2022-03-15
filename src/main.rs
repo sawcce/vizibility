@@ -28,10 +28,10 @@ fn main() {
     let joined: Vec<String> = result.iter().map(|s| format!("{}", s)).collect();
     println!("{}", joined.join(" "));
 
-    let parser = VizibilityParser::new(result);
+    let parser = VizibilityParser::new(result, "fn hewo() end");
     let result = parser.program();
     match result {
         Ok(val) => println!("{:?}", val),
-        Err(err) => println!("{}", err)
+        Err(err) => {}
     }
 }
