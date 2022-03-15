@@ -25,13 +25,14 @@ fn main() {
 
     let result = tokenize(tokens, "fn hewo() end");
 
-    let joined: Vec<String> = result.iter().map(|s| format!("{}", s)).collect();
-    println!("{}", joined.join(" "));
+    //let joined: Vec<String> = result.iter().map(|s| format!("{}", s)).collect();
+    //println!("{}", joined.join(" "));
 
     let parser = VizibilityParser::new(result, "fn hewo() end");
     let result = parser.program();
+    
     match result {
-        Ok(val) => println!("{:?}", val),
-        Err(err) => {}
+        Ok(val) => println!("Program => {:?}", val),
+        _ => {}
     }
 }
