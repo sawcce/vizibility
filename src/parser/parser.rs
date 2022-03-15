@@ -87,8 +87,6 @@ impl Parser for VizibilityParser {
         }
     }
 
-    fn consume(&mut self) {}
-
     fn subrule<ReturnType>(
         &mut self,
         rule: fn(last_token: Option<TokenMatch>) -> ReturnType,
@@ -103,7 +101,6 @@ impl Parser for VizibilityParser {
 
 trait Parser {
     fn expect_ahead(&mut self, variant: Token) -> Result<TokenMatch, ()>;
-    fn consume(&mut self);
     fn subrule<ReturnType>(
         &mut self,
         rule: fn(last_token: Option<TokenMatch>) -> ReturnType,
