@@ -26,7 +26,7 @@ impl VizibilityParser {
     }
 
     pub fn program(self) -> Result<Program, ()> {
-        let first = self.expect_ahead(Token::End)?;
+        let first = self.expect_ahead(Token::Fn)?;
         println!("First token : {}", first);
         Ok(Program {})
     }
