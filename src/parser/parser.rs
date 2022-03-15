@@ -25,9 +25,10 @@ impl VizibilityParser {
         }
     }
 
-    pub fn program(self) -> Result<Program, ()> {
+    pub fn program(mut self) -> Result<Program, ()> {
         let first = self.expect_ahead(Token::Fn)?;
-        
+        let second = self.expect_ahead(Token::Identifier)?;
+
         Ok(Program {
             first_token_value: first.value,
         })
@@ -35,7 +36,7 @@ impl VizibilityParser {
 }
 
 impl Parser for VizibilityParser {
-    fn expect_ahead(&self, variant: Token) -> Result<TokenMatch, ()> {
+    fn expect_ahead(&mut self, variant: Token) -> Result<TokenMatch, ()> {
         let tokens = self.tokens.clone();
         let computed = self.current_index + self.skip_amount;
 
@@ -44,6 +45,7 @@ impl Parser for VizibilityParser {
                 let token_type = token.token_type;
 
                 if discriminant(&variant) == discriminant(&token_type) {
+                    self.skip_amount += 1;
                     return Ok(token.clone());
                 }
 
@@ -100,7 +102,7 @@ impl Parser for VizibilityParser {
 }
 
 trait Parser {
-    fn expect_ahead(&self, variant: Token) -> Result<TokenMatch, ()>;
+    fn expect_ahead(&mut self, variant: Token) -> Result<TokenMatch, ()>;
     fn consume(&mut self);
     fn subrule<ReturnType>(
         &mut self,
