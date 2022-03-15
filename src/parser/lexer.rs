@@ -91,6 +91,7 @@ pub fn tokenize(tokens: Vec<TokenType>, text: &str) -> Vec<TokenMatch> {
                     current_text = current_text[value_length..].to_string();
 
                     if let Token::Skipped = token_variant{
+                        current_char += value_length;
                         break 'iter;
                     }
 
