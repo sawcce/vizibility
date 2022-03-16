@@ -14,7 +14,7 @@ fn main() {
     let tokens = from_str_vec(vec![
         (r"\bfn\b", Token::Fn),
         (r"\bdo\b", Token::Do),
-        (r"\bend\b", Token::Int),
+        (r"\bend\b", Token::End),
         (r"\blet\b", Token::Let),
         (r"\bmut\b", Token::Mut),
         (r"\(", Token::LParen),
