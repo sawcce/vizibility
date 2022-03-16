@@ -15,6 +15,15 @@ pub struct Program {
     func_name: String,
 }
 
+
+
+pub struct ErrorReport {
+    offset: usize,
+    message: String,
+    label: String,
+    length: usize,
+}
+
 pub fn id(parser: &mut impl Parser) -> Result<String, String> {
     let id_token = parser.expect_ahead(Token::Identifier)?;
     Ok(id_token.value)
