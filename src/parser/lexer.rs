@@ -57,7 +57,7 @@ pub struct TokenMatch {
 }
 
 impl Display for TokenMatch {
-     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         //write!(f, "ee")
         write!(
             f,
@@ -90,7 +90,7 @@ pub fn tokenize(tokens: Vec<TokenType>, text: &str) -> Vec<TokenMatch> {
                     let value_length = value.len();
                     current_text = current_text[value_length..].to_string();
 
-                    if let Token::Skipped = token_variant{
+                    if let Token::Skipped = token_variant {
                         current_char += value_length;
                         break 'iter;
                     }
