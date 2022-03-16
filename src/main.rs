@@ -6,7 +6,8 @@ use parser::lexer::{
 };
 
 use parser::parser::{
-    VizibilityParser
+    VizibilityParser,
+    program
 };
 
 fn main() {
@@ -29,10 +30,10 @@ fn main() {
     //println!("{}", joined.join(" "));
 
     let parser = VizibilityParser::new(result, "fn hewo() end");
-    let result = parser.program();
+    let result = program(parser);
     
     match result {
         Ok(val) => println!("Program => {:?}", val),
-        _ => {}
+        Err(error) => println!("{}", error),
     }
 }

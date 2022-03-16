@@ -12,7 +12,25 @@ pub struct VizibilityParser {
 
 #[derive(Debug)]
 pub struct Program {
-    first_token_value: String,
+    func_name: String,
+}
+
+pub fn id(parser: &mut impl Parser) -> Result<String, String> {
+    let id_token = parser.expect_ahead(Token::Identifier)?;
+    Ok(id_token.value)
+}
+
+pub fn program(mut parser: impl Parser) -> Result<Program, String> {
+    parser.expect_ahead(Token::Fn)?;
+    let name = parser.subrule(id, None)?;
+
+    parser.expect_ahead(Token::LParen)?;
+    parser.expect_ahead(Token::RParen)?;
+    parser.expect_ahead(Token::End)?;
+
+    Ok(Program {
+        func_name: name,
+    })
 }
 
 impl VizibilityParser {
@@ -24,19 +42,10 @@ impl VizibilityParser {
             tokens,
         }
     }
-
-    pub fn program(mut self) -> Result<Program, ()> {
-        let first = self.expect_ahead(Token::Fn)?;
-        let second = self.expect_ahead(Token::Identifier)?;
-
-        Ok(Program {
-            first_token_value: first.value,
-        })
-    }
 }
 
 impl Parser for VizibilityParser {
-    fn expect_ahead(&mut self, variant: Token) -> Result<TokenMatch, ()> {
+    fn expect_ahead(&mut self, variant: Token) -> Result<TokenMatch, String> {
         let tokens = self.tokens.clone();
         let computed = self.current_index + self.skip_amount;
 
@@ -55,18 +64,7 @@ impl Parser for VizibilityParser {
                 );
                 let label = format!("This is of type {}", token_type);
 
-                let x = Report::build(ReportKind::Error, (), 0)
-                    .with_message(message)
-                    .with_label(
-                        Label::new(token.start..token.start + token.length)
-                            .with_message(label)
-                            .with_color(Color::Cyan),
-                    )
-                    .finish()
-                    .print(Source::from(self.source))
-                    .unwrap();
-
-                return Err(x);
+                return Err(message);
             }
             None => {
                 if let variant = Token::EOF {
@@ -81,29 +79,28 @@ impl Parser for VizibilityParser {
                     });
                 }
 
-                println!("Out of bounds!");
-                return Err(());
+                return Err("Out of bounds!".to_string());
             }
         }
     }
 
     fn subrule<ReturnType>(
         &mut self,
-        rule: fn(last_token: Option<TokenMatch>) -> ReturnType,
+        rule: impl Fn(&mut VizibilityParser) -> ReturnType,
         last_token: Option<TokenMatch>,
     ) -> ReturnType {
-        let result = rule(last_token);
+        let result = rule(self);
         self.current_index += self.skip_amount;
         self.skip_amount = 0;
         result
     }
 }
 
-trait Parser {
-    fn expect_ahead(&mut self, variant: Token) -> Result<TokenMatch, ()>;
+pub trait Parser {
+    fn expect_ahead(&mut self, variant: Token) -> Result<TokenMatch, String>;
     fn subrule<ReturnType>(
         &mut self,
-        rule: fn(last_token: Option<TokenMatch>) -> ReturnType,
+        rule: impl Fn(&mut VizibilityParser) -> ReturnType,
         last_token: Option<TokenMatch>,
     ) -> ReturnType;
 }
